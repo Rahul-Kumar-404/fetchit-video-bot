@@ -1,20 +1,19 @@
 import os
 import re
+import json
+import urllib.request
 from dotenv import load_dotenv
 from threading import Thread
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-import yt_dlp
 
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-DOWNLOAD_DIR = "downloads"
 
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-
+# --- DUMMY WEB SERVER FOR RENDER ---
 class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -44,63 +43,46 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Please send a valid HTTP or HTTPS URL.")
         return
 
-    status_message = await update.message.reply_text("⚡ Processing quickly... Please wait.")
-
-    # Highly optimized options to bypass cloud blocks using standard web client simulation
-    ydl_opts = {
-        'format': 'best[ext=mp4]/best', 
-        'outtmpl': f'{DOWNLOAD_DIR}/%(id)s.%(ext)s',
-        'quiet': True,
-        'no_warnings': True,
-        'geo_bypass': True,
-        'nocheckcertificate': True,
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['web', 'default']
-            }
-        },
-        'max_filesize': 50 * 1024 * 1024,
-    }
+    status_message = await update.message.reply_text("⚡ Extracting video... Please wait.")
 
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            video_id = info.get('id', 'unknown')
-            title = info.get('title', 'Downloaded Media')
+        # Ultimate Bypass: Using Cobalt API instead of yt-dlp to avoid IP Blocks
+        api_url = "https://api.cobalt.tools/api/json"
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        data = json.dumps({"url": url}).encode("utf-8")
+        
+        req = urllib.request.Request(api_url, data=data, headers=headers)
+        
+        with urllib.request.urlopen(req) as response:
+            res_data = json.loads(response.read().decode())
             
-            downloaded_files = [f for f in os.listdir(DOWNLOAD_DIR) if video_id in f]
-            
-            if not downloaded_files:
-                raise Exception("Could not find the downloaded file.")
+        video_url = res_data.get("url")
+        
+        if not video_url:
+            raise Exception("API blocked or invalid link.")
 
-            await context.bot.edit_message_text(
-                "⬆️ Uploading to Telegram...", 
-                chat_id=chat_id, 
-                message_id=status_message.message_id
-            )
+        await context.bot.edit_message_text(
+            "⬆️ Uploading to Telegram...", 
+            chat_id=chat_id, 
+            message_id=status_message.message_id
+        )
 
-            downloaded_files.sort(key=lambda x: 1 if x.endswith(('.mp4', '.mkv', '.webm')) else 2)
-            file_to_send = os.path.join(DOWNLOAD_DIR, downloaded_files[0])
+        # Telegram sends the video directly using the extracted URL
+        await context.bot.send_video(
+            chat_id=chat_id, 
+            video=video_url, 
+            caption="✅ Downloaded via FetchIt",
+            read_timeout=60,
+            write_timeout=60
+        )
 
-            with open(file_to_send, 'rb') as video_file:
-                await context.bot.send_video(
-                    chat_id=chat_id, 
-                    video=video_file, 
-                    caption=title,
-                    read_timeout=60,
-                    write_timeout=60
-                )
-
-            for file in downloaded_files:
-                try:
-                    os.remove(os.path.join(DOWNLOAD_DIR, file))
-                except:
-                    pass
-
-            await context.bot.delete_message(chat_id=chat_id, message_id=status_message.message_id)
+        await context.bot.delete_message(chat_id=chat_id, message_id=status_message.message_id)
 
     except Exception as e:
-        error_text = f"❌ Download failed. Please try a different link or check if it's public."
+        error_text = f"❌ Failed to download. Ensure the account is public. Error: {str(e)[:50]}"
         await context.bot.edit_message_text(error_text, chat_id=chat_id, message_id=status_message.message_id)
 
 def main():
@@ -115,7 +97,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    print("✅ Bot is running smoothly!")
+    print("✅ Bot is running with Ultimate Cobalt API Mode!")
     app.run_polling()
 
 if __name__ == '__main__':
