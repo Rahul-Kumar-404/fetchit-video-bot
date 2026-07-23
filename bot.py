@@ -34,7 +34,7 @@ Thread(target=run_server, daemon=True).start()
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Sends a welcome message in English when the /start command is issued."""
+    """Sends a welcome message when the /start command is issued."""
     welcome_text = (
         "👋 Welcome to FetchIt Video Downloader!\n\n"
         "Send me a video or reel link from YouTube, Instagram, Facebook, etc., "
@@ -43,7 +43,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(welcome_text)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handles incoming URL messages and downloads media with English feedback."""
+    """Handles incoming URL messages and downloads media with robust extraction options."""
     url = update.message.text
     chat_id = update.message.chat_id
 
@@ -54,7 +54,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     status_message = await update.message.reply_text("⚡ Processing quickly... Please wait.")
 
-    # Optimized yt-dlp configurations with custom headers to prevent blocking
+    # Enhanced yt-dlp configurations to bypass cloud blocking
     ydl_opts = {
         'format': 'best[ext=mp4]/best', 
         'outtmpl': f'{DOWNLOAD_DIR}/%(id)s.%(ext)s',
@@ -62,8 +62,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'no_warnings': True,
         'geo_bypass': True,
         'nocheckcertificate': True,
+        'extractor_args': {
+            'instagram': {
+                'api_version': 'v1'
+            }
+        },
         'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Sec-Fetch-Mode': 'navigate',
         },
         'max_filesize': 50 * 1024 * 1024, # 50MB limit for Telegram bots
     }
@@ -108,7 +116,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.delete_message(chat_id=chat_id, message_id=status_message.message_id)
 
     except Exception as e:
-        error_text = "❌ Failed to download. Ensure the link is public and supported."
+        error_text = f"❌ Failed to download. Error: {str(e)[:100]}"
         await context.bot.edit_message_text(error_text, chat_id=chat_id, message_id=status_message.message_id)
 
 def main():
@@ -124,7 +132,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    print("✅ Bot is successfully running in English mode!")
+    print("✅ Bot is successfully running with enhanced bypass mode!")
     app.run_polling()
 
 if __name__ == '__main__':
