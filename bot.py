@@ -46,11 +46,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     status_message = await update.message.reply_text("⚡ Extracting video... Please wait.")
 
     try:
-        # Ultimate Bypass: Using Cobalt API instead of yt-dlp to avoid IP Blocks
+        # Ultimate Bypass: Using Cobalt API with a real Browser User-Agent
         api_url = "https://api.cobalt.tools/api/json"
+        
+        # Added User-Agent so Cobalt API thinks this is a real Chrome browser, preventing 403 Forbidden
         headers = {
             "Accept": "application/json",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
         }
         data = json.dumps({"url": url}).encode("utf-8")
         
