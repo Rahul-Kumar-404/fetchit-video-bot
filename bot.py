@@ -46,7 +46,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     status_message = await update.message.reply_text("⚡ Processing quickly... Please wait.")
 
-    # Robust options using 'mweb' (Mobile Web) client to bypass sign-in and bot checks on Render
+    # Highly optimized options to bypass cloud blocks using standard web client simulation
     ydl_opts = {
         'format': 'best[ext=mp4]/best', 
         'outtmpl': f'{DOWNLOAD_DIR}/%(id)s.%(ext)s',
@@ -56,13 +56,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'nocheckcertificate': True,
         'extractor_args': {
             'youtube': {
-                'player_client': ['mweb', 'android']
+                'player_client': ['web', 'default']
             }
-        },
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
         },
         'max_filesize': 50 * 1024 * 1024,
     }
@@ -92,8 +87,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     chat_id=chat_id, 
                     video=video_file, 
                     caption=title,
-                    read_timeout=45,
-                    write_timeout=45
+                    read_timeout=60,
+                    write_timeout=60
                 )
 
             for file in downloaded_files:
@@ -105,23 +100,22 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.delete_message(chat_id=chat_id, message_id=status_message.message_id)
 
     except Exception as e:
-        # Now it will show the exact error so we know what's happening if it fails
-        error_text = f"❌ Error: {str(e)[:150]}"
+        error_text = f"❌ Download failed. Please try a different link or check if it's public."
         await context.bot.edit_message_text(error_text, chat_id=chat_id, message_id=status_message.message_id)
 
 def main():
     app = (
         Application.builder()
         .token(BOT_TOKEN)
-        .read_timeout(45)
-        .write_timeout(45)
+        .read_timeout(60)
+        .write_timeout(60)
         .build()
     )
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    print("✅ Bot is running successfully with mweb client!")
+    print("✅ Bot is running smoothly!")
     app.run_polling()
 
 if __name__ == '__main__':
