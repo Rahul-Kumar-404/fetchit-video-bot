@@ -1,6 +1,8 @@
 import os
 import re
 from dotenv import load_dotenv
+from threading import Thread
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
@@ -15,6 +17,22 @@ DOWNLOAD_DIR = "downloads"
 
 # Ensure the download directory exists on your system
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+
+# --- DUMMY WEB SERVER FOR RENDER (To satisfy Web Service port requirement) ---
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot is alive and running!")
+
+def run_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(('0.0.0.0', port), HealthCheckHandler)
+    server.serve_forever()
+
+# Start the dummy server in a separate background thread
+Thread(target=run_server, daemon=True).start()
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Sends a welcome message when the /start command is issued."""
