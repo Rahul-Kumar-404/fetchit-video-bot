@@ -8,17 +8,15 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import yt_dlp
 
-# Load environment variables from the .env file
+# Load environment variables
 load_dotenv()
 
-# --- CONFIGURATION ---
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DOWNLOAD_DIR = "downloads"
 
-# Ensure the download directory exists on your system
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-# --- DUMMY WEB SERVER FOR RENDER ---
+# Dummy web server for Render port binding
 class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -32,29 +30,25 @@ def run_server():
 
 Thread(target=run_server, daemon=True).start()
 
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Sends a welcome message when the /start command is issued."""
     welcome_text = (
         "👋 Welcome to FetchIt Video Downloader!\n\n"
-        "Send me a video or reel link from YouTube, Instagram, Facebook, etc., "
+        "Send me a video or reel link from YouTube, Instagram, etc., "
         "and I will download it for you instantly."
     )
     await update.message.reply_text(welcome_text)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handles incoming URL messages and downloads media with robust extraction options."""
     url = update.message.text
     chat_id = update.message.chat_id
 
-    # Validate if the incoming text is a valid URL
     if not re.match(r'^https?://', url):
         await update.message.reply_text("❌ Please send a valid HTTP or HTTPS URL.")
         return
 
     status_message = await update.message.reply_text("⚡ Processing quickly... Please wait.")
 
-    # Enhanced yt-dlp configurations to bypass cloud blocking
+    # Advanced options to bypass bot detection and 429 errors
     ydl_opts = {
         'format': 'best[ext=mp4]/best', 
         'outtmpl': f'{DOWNLOAD_DIR}/%(id)s.%(ext)s',
@@ -63,17 +57,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'geo_bypass': True,
         'nocheckcertificate': True,
         'extractor_args': {
-            'instagram': {
-                'api_version': 'v1'
-            }
+            'youtube': {'player_client': ['android', 'web']},
+            'instagram': {'api_version': 'v1'}
         },
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.5',
-            'Sec-Fetch-Mode': 'navigate',
         },
-        'max_filesize': 50 * 1024 * 1024, # 50MB limit for Telegram bots
+        'max_filesize': 50 * 1024 * 1024,
     }
 
     try:
@@ -96,7 +88,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             downloaded_files.sort(key=lambda x: 1 if x.endswith(('.mp4', '.mkv', '.webm')) else 2)
             file_to_send = os.path.join(DOWNLOAD_DIR, downloaded_files[0])
 
-            # Send the video file back to the user
             with open(file_to_send, 'rb') as video_file:
                 await context.bot.send_video(
                     chat_id=chat_id, 
@@ -106,7 +97,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     write_timeout=45
                 )
 
-            # Cleanup local storage
             for file in downloaded_files:
                 try:
                     os.remove(os.path.join(DOWNLOAD_DIR, file))
@@ -116,11 +106,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.delete_message(chat_id=chat_id, message_id=status_message.message_id)
 
     except Exception as e:
-        error_text = f"❌ Failed to download. Error: {str(e)[:100]}"
+        error_text = "❌ Failed to download. The link might be private or restricted by the platform."
         await context.bot.edit_message_text(error_text, chat_id=chat_id, message_id=status_message.message_id)
 
 def main():
-    """Starts the bot with appropriate timeouts."""
     app = (
         Application.builder()
         .token(BOT_TOKEN)
@@ -132,7 +121,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    print("✅ Bot is successfully running with enhanced bypass mode!")
+    print("✅ Bot is running successfully!")
     app.run_polling()
 
 if __name__ == '__main__':
