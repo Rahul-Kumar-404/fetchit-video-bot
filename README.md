@@ -1,78 +1,63 @@
-🚀 Project Title & Tagline
-========================
-**YouTube Telegram Bot** 🤖
-_Automate YouTube video downloads and sharing with a simple Telegram bot_
+# ⚡ FetchIt Video Downloader Bot
 
-📖 Description
----------------
-The YouTube Telegram Bot is a Python-based project that utilizes the Telegram Bot API and YouTube-DL to enable users to download and share YouTube videos directly from Telegram. This project aims to simplify the process of accessing and sharing YouTube content, making it easier for users to enjoy their favorite videos.
+👋 Welcome to **FetchIt Video Downloader**! ⚡️
 
-The bot is designed to be user-friendly, with a simple and intuitive interface that allows users to interact with it using basic commands. With the YouTube Telegram Bot, users can search for videos, download them in various formats, and share them with others. The bot also supports features like video preview, allowing users to preview videos before downloading them.
+Send me any video link from YouTube, Instagram, Facebook, Pinterest, etc., and I'll download the high-quality videos and reels for you instantly.
 
-The project is built using Python 3.x and leverages the `python-telegram-bot` library to interact with the Telegram Bot API. The `yt_dlp` library is used to handle YouTube video downloads. The project is designed to be scalable and can be easily extended to support additional features and functionality.
+---
 
-✨ Features
------------
-Here are some of the key features of the YouTube Telegram Bot:
-1. **Video Search**: Search for YouTube videos using keywords or video IDs.
-2. **Video Download**: Download YouTube videos in various formats (MP4, MP3, etc.).
-3. **Video Preview**: Preview videos before downloading them.
-4. **Video Sharing**: Share downloaded videos with others.
-5. **Format Selection**: Choose from various video formats and qualities.
-6. **Command-Based Interface**: Interact with the bot using simple commands.
-7. **Error Handling**: Robust error handling to ensure the bot remains stable and functional.
-8. **Configurable Settings**: Configure the bot's settings using environment variables.
+## 📸 Screenshots
 
-🧰 Tech Stack Table
--------------------
-| Category | Technology |
-| --- | --- |
-| Frontend | None (Telegram Bot API) |
-| Backend | Python 3.x |
-| Tools | `python-telegram-bot`, `yt_dlp`, `dotenv` |
-| Libraries | `telegram`, `telegram.ext`, `yt_dlp` |
-| APIs | Telegram Bot API, YouTube API ( implicit ) |
+| Desktop View (PC) | Mobile View (Phone) |
+| :---: | :---: |
+| ![Desktop View](assets/desktop_shot.png) | ![Mobile View](assets/mobile_shot.jpg) |
 
-📁 Project Structure
----------------------
-The project is organized into the following folders and files:
-* `bot.py`: The main bot script that handles user interactions and video downloads.
-* `requirements.txt`: A list of dependencies required to run the project.
-* `.env`: A file containing environment variables used to configure the bot.
-* `README.md`: This file, which provides an overview of the project and its features.
+---
 
-⚙️ How to Run
----------------
-To run the YouTube Telegram Bot, follow these steps:
-1. **Setup**: Create a new Telegram bot using the BotFather bot and obtain an API token.
-2. **Environment**: Create a new file named `.env` and add the following environment variables:
-	* `TELEGRAM_TOKEN`: Your Telegram bot API token.
-	* `TELEGRAM_USERNAME`: Your Telegram bot username.
-3. **Build**: Install the required dependencies by running `pip install -r requirements.txt`.
-4. **Deploy**: Run the bot by executing `python bot.py`.
+## 🚀 Features
+* **Multi-Platform Support:** Download videos and reels seamlessly from YouTube, Instagram, Facebook, and Pinterest.
+* **Lightning Fast:** Optimized for quick single-file downloads without slow merging delays.
+* **Smart Error Handling:** Clean notifications for unsupported formats, dead links, or timeouts.
+* **Cloud Ready:** Fully compatible to run 24/7 on cloud platforms like Render, Koyeb, or Railway.
 
-🧪 Testing Instructions
-------------------------
-To test the YouTube Telegram Bot, follow these steps:
-1. **Start the Bot**: Run the bot by executing `python bot.py`.
-2. **Interact with the Bot**: Send commands to the bot using Telegram.
-3. **Test Features**: Test the various features of the bot, such as video search, download, and sharing.
+## 🛠️ Tech Stack
+* **Python** (v3.10+)
+* **python-telegram-bot** (Telegram API Wrapper)
+* **yt-dlp** (Media Extraction Engine)
+* **python-dotenv** (Environment Configuration)
 
-📸 Screenshots
-----------------
-[![Screenshot 1](https://via.placeholder.com/300x200)](https://via.placeholder.com/300x200)
-[![Screenshot 2](https://via.placeholder.com/300x200)](https://via.placeholder.com/300x200)
+## ⚙️ Local Installation & Setup
 
-📦 API Reference
-----------------
-The YouTube Telegram Bot uses the following APIs:
-* **Telegram Bot API**: Used to interact with the Telegram bot.
-* **YouTube API**: Used implicitly to download YouTube videos.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Rahul-Kumar-404/fetchit-video-bot.git
+   cd fetchit-video-bot
+   ```
 
-👤 Author
-----------
-The YouTube Telegram Bot is developed and maintained by [Your Name](https://github.com/your-username).
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-📝 License
-----------
-The YouTube Telegram Bot is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+3. **Configure environment variables:**
+   Create a `.env` file in the root directory and add your Telegram Bot Token:
+   ```env
+   BOT_TOKEN=your_telegram_bot_token_here
+   ```
+
+4. **Run the bot:**
+   ```bash
+   python bot.py
+   ```
+
+---
+
+## 👨‍💻 Connect with the Developer
+* **Developer:** Rahul Kumar
+* **Instagram:** [marcus_the_darcus](https://www.instagram.com/marcus_the_darcus/)
+* **GitHub:** [Rahul-Kumar-404](https://github.com/Rahul-Kumar-404)
+* **LinkedIn:** [the-rahulogy](https://www.linkedin.com/in/the-rahulogy/)
+* **X (Twitter):** [The_Rahulogy](https://x.com/The_Rahulogy)
+
+## 📝 License
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
