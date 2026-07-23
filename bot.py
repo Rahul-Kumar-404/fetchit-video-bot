@@ -8,7 +8,6 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import yt_dlp
 
-# Load environment variables
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -16,7 +15,6 @@ DOWNLOAD_DIR = "downloads"
 
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-# Dummy web server for Render port binding
 class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -48,7 +46,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     status_message = await update.message.reply_text("⚡ Processing quickly... Please wait.")
 
-    # Advanced options to bypass bot detection and 429 errors
+    # Robust options using 'mweb' (Mobile Web) client to bypass sign-in and bot checks on Render
     ydl_opts = {
         'format': 'best[ext=mp4]/best', 
         'outtmpl': f'{DOWNLOAD_DIR}/%(id)s.%(ext)s',
@@ -57,11 +55,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'geo_bypass': True,
         'nocheckcertificate': True,
         'extractor_args': {
-            'youtube': {'player_client': ['android', 'web']},
-            'instagram': {'api_version': 'v1'}
+            'youtube': {
+                'player_client': ['mweb', 'android']
+            }
         },
         'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.5',
         },
@@ -106,7 +105,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.delete_message(chat_id=chat_id, message_id=status_message.message_id)
 
     except Exception as e:
-        error_text = "❌ Failed to download. The link might be private or restricted by the platform."
+        # Now it will show the exact error so we know what's happening if it fails
+        error_text = f"❌ Error: {str(e)[:150]}"
         await context.bot.edit_message_text(error_text, chat_id=chat_id, message_id=status_message.message_id)
 
 def main():
@@ -121,7 +121,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    print("✅ Bot is running successfully!")
+    print("✅ Bot is running successfully with mweb client!")
     app.run_polling()
 
 if __name__ == '__main__':
